@@ -1,1 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur Fiscal Pro - Solo & Couple</title>
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-light: #f8fafc;
+        }
 
+        body {
+            margin: 0; padding: 20px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-light);
+            display: flex; justify-content: center;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%; max-width: 850px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center; font-size: 2.2em; margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .tabs {
+            display: flex; gap: 10px; margin-bottom: 30px;
+            background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1; padding: 12px; text-align: center; cursor: pointer;
+            border-radius: 10px; transition: 0.3s; font-weight: 600;
+        }
+
+        .tab.active { background: var(--secondary); color: white; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        .input-box { margin-bottom: 20px; }
+
+        label { display: block; margin-bottom: 8px; font-size: 0.9em; color: #94a3b8; }
+
+        input {
+            width: 100%; padding: 14px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(15, 23, 42, 0.6);
+            color: white; font-size: 1em; box-sizing: border-box; outline: none;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white; font-size: 1.1em; font-weight: bold; cursor: pointer;
+            margin-top: 10px; transition: 0.3s;
+        }
+
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .results { margin-top: 35px; display: none; }
+
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+
+        .card {
+            background: rgba(15, 23, 42, 0.5); border-radius: 20px; padding: 25px;
+            border: 1px solid rgba(255,255,255,0.05); text-align: center;
+        }
+
+        .amount { font-size: 2em; font-weight: 800; margin: 10px 0; color: var(--primary); }
+
+        .winner { border: 2px solid #10b981; background: rgba(16, 185, 129, 0.1); }
+
+        .explanation {
+            margin-top: 30px; padding: 25px; background: rgba(0,0,0,0.2);
+            border-radius: 16px; border-left: 4px solid var(--secondary);
+        }
+
+        #partnerSection { display: none; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calculateur d'Impôts</h1>
+    
+    <div class="tabs">
+        <div class="tab active" id="tabSolo" onclick="switchMode('solo')">Célibataire (1 Part)</div>
+        <div class="tab" id="tabCouple" onclick="switchMode('couple')">PACS / Marié (2 Parts)</div>
+    </div>
+
+    <div class="grid">
+        <div class="input-box">
+            <label>Tes revenus nets (€)</label>
+            <input type="number" id="rev1" value="22867.28">
+        </div>
+        <div class="input-box">
+            <label>Tes frais réels (€)</label>
+            <input type="number" id="frais1" value="3765">
+        </div>
+    </div>
+
+    <div id="partnerSection">
+        <div class="grid">
+            <div class="input-box">
+                <label>Revenus Partenaire (€)</label>
+                <input type="number" id="rev2" value="0">
+            </div>
+            <div class="input-box">
+                <label>Frais réels Partenaire (€)</label>
+                <input type="number" id="frais2" value="0">
+            </div>
+        </div>
+    </div>
+
+    <div class="input-box">
+        <label>Total déjà prélevé à la source (€)</label>
+        <input type="number" id="source" value="220.10">
+    </div>
+
+    <button onclick="calculer()">Comparer les options</button>
+
+    <div class="results" id="results">
+        <div class="comparison-grid" id="cards">
+            </div>
+        <div id="summary" class="explanation"></div>
+    </div>
+</div>
+
+<script>
+    let mode = 'solo';
+
+    function switchMode(m) {
+        mode = m;
+        document.getElementById('tabSolo').classList.toggle('active', m === 'solo');
+        document.getElementById('tabCouple').classList.toggle('active', m === 'couple');
+        document.getElementById('partnerSection').style.display = m === 'couple' ? 'block' : 'none';
+    }
+
+    function calculImpot(revenu, parts) {
+        let qf = revenu / parts;
+        let impotBase = 0;
+        
+        if (qf > 11600) impotBase += (Math.min(qf, 29579) - 11600) * 0.11;
+        if (qf > 29579) impotBase += (Math.min(qf, 85460) - 29579) * 0.30;
+        if (qf > 85460) impotBase += (Math.min(qf, 183604) - 85460) * 0.41;
+        if (qf > 183604) impotBase += (qf - 183604) * 0.45;
+
+        let impotBrut = impotBase * parts;
+
+        // Décote 2026
+        let plafondDecote = parts === 1 ? 1982 : 3274;
+        let baseDecote = parts === 1 ? 897 : 1481;
+        
+        if (impotBrut > 0 && impotBrut < plafondDecote) {
+            let decote = baseDecote - (impotBrut * 0.4525);
+            if (decote > 0) impotBrut -= decote;
+        }
+        return Math.max(0, impotBrut);
+    }
+
+    function calculer() {
+        const r1 = parseFloat(document.getElementById('rev1').value) || 0;
+        const f1 = parseFloat(document.getElementById('frais1').value) || 0;
+        const r2 = parseFloat(document.getElementById('rev2').value) || 0;
+        const f2 = parseFloat(document.getElementById('frais2').value) || 0;
+        const sourceTotal = parseFloat(document.getElementById('source').value) || 0;
+
+        let parts = mode === 'solo' ? 1 : 2;
+        let revTotal = mode === 'solo' ? r1 : (r1 + r2);
+        
+        // Calcul Option Frais Réels
+        let totalFrais = mode === 'solo' ? f1 : (f1 + f2);
+        let impotFrais = calculImpot(revTotal - totalFrais, parts);
+        let resteFrais = impotFrais - sourceTotal;
+
+        // Calcul Option 10%
+        let abattement = Math.min(revTotal * 0.1, 14649); // Plafond indicatif
+        let impot10 = calculImpot(revTotal - abattement, parts);
+        let reste10 = impot10 - sourceTotal;
+
+        const cards = document.getElementById('cards');
+        const summary = document.getElementById('summary');
+
+        cards.innerHTML = `
+            <div class="card ${reste10 < resteFrais ? 'winner' : ''}">
+                <h3>Option 10%</h3>
+                <div class="amount">${Math.abs(reste10).toFixed(2)} €</div>
+                <small>${reste10 < 0 ? 'À vous rembourser' : 'À payer'}</small>
+            </div>
+            <div class="card ${resteFrais < reste10 ? 'winner' : ''}">
+                <h3>Option Frais Réels</h3>
+                <div class="amount">${Math.abs(resteFrais).toFixed(2)} €</div>
+                <small>${resteFrais < 0 ? 'À vous rembourser' : 'À payer'}</small>
+            </div>
+        `;
+
+        let economie = Math.abs(reste10 - resteFrais).toFixed(2);
+        let textMode = mode === 'solo' ? "ta situation actuelle" : "votre foyer pacsé";
+        
+        summary.innerHTML = `
+            <h3>Analyse du résultat</h3>
+            <p>Pour ${textMode}, les <strong>frais réels</strong> vous font économiser <strong>${economie} €</strong> par rapport à l'abattement classique.</p>
+            <p><strong>Note sur le PACS :</strong> Si vous étiez déclarés séparément, vous paieriez la somme de deux impôts individuels. En déclaration commune (2 parts), le revenu total est divisé par deux avant d'appliquer le barème, ce qui réduit l'impôt si l'un de vous gagne plus que l'autre.</p>
+        `;
+
+        document.getElementById('results').style.display = 'block';
+    }
+</script>
+</body>
+</html>
