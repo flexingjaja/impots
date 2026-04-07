@@ -2,224 +2,488 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUCK LE FISC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>fuck le fisc</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
-            --primary: #00f2fe;
-            --secondary: #4facfe;
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-light: #f8fafc;
+            --bg-app: #f8fafc; 
+            --primary: #0f172a; 
+            --accent: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-muted: #64748b; 
+        }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #111827; 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; 
         }
 
-        body {
-            margin: 0; padding: 20px;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            color: var(--text-light);
-            display: flex; justify-content: center;
+        /* --- DASHBOARD FRAME (Taille normale, parfaitement ajustée) --- */
+        .app-container {
+            background: var(--bg-app);
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative;
+            
+            width: 1000px; 
+            height: 640px; 
+            
+            border-radius: 24px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            border: 8px solid #1f2937;
         }
 
-        .container {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px;
-            width: 100%; max-width: 850px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        .app-body { display: flex; flex-direction: row; flex: 1; overflow: hidden; }
+        
+        /* PANNEAU GAUCHE */
+        .left-panel { 
+            width: 340px; 
+            display: flex; flex-direction: column; 
+            border-right: 1px solid #e2e8f0; 
+            background: white; 
+            z-index: 10; 
+        }
+        
+        /* PANNEAU DROIT */
+        .right-panel { 
+            flex: 1; 
+            display: flex; flex-direction: column; 
+            background: var(--bg-app); 
+            padding: 20px;
+            overflow: hidden; 
+        }
+        
+        /* GRILLE DE SAISIE */
+        .exercise-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px; 
+            height: 100%;
+            align-content: start;
+            align-items: stretch;
         }
 
-        h1 {
-            text-align: center; font-size: 2.2em; margin-bottom: 30px;
-            background: linear-gradient(to right, #fff, var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        /* --- HEADER --- */
+        .app-header {
+            background: white; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .brand { font-size: 1.2rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
+        .brand i { color: var(--accent); }
+
+        /* --- SELECTEUR --- */
+        .selector-area { 
+            padding: 20px 20px 15px 20px; 
+            border-bottom: 1px solid #f1f5f9; 
+            background: white;
         }
 
-        .tabs {
-            display: flex; gap: 10px; margin-bottom: 30px;
-            background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px;
+        .custom-select-wrapper { position: relative; width: 100%; }
+
+        .custom-select {
+            width: 100%; padding: 12px 15px; padding-right: 40px; appearance: none;
+            background-color: var(--primary); color: white; border: none; border-radius: 10px;
+            font-family: inherit; font-weight: 700; font-size: 0.95rem;
+            box-shadow: 0 4px 10px -5px rgba(15, 23, 42, 0.3); cursor: pointer;
+            background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .select-arrow {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            color: white; pointer-events: none; font-size: 0.85rem;
+            background: rgba(255,255,255,0.2); width: 24px; height: 24px; 
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
         }
 
-        .tab {
-            flex: 1; padding: 12px; text-align: center; cursor: pointer;
-            border-radius: 10px; transition: 0.3s; font-weight: 600;
+        /* --- ZONE RESULTATS --- */
+        .coach-zone {
+            padding: 10px 20px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; background: white; flex: 1; justify-content: center;
         }
 
-        .tab.active { background: var(--secondary); color: white; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        .input-box { margin-bottom: 20px; }
-
-        label { display: block; margin-bottom: 8px; font-size: 0.9em; color: #94a3b8; }
-
-        input {
-            width: 100%; padding: 14px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1); background: rgba(15, 23, 42, 0.6);
-            color: white; font-size: 1em; box-sizing: border-box; outline: none;
+        .result-block {
+            display: flex; flex-direction: column; gap: 15px; 
+            background: var(--bg-app); border-radius: 16px; padding: 15px;
+            border: 1px solid #e2e8f0; justify-content: center;
         }
 
-        input:focus { border-color: var(--primary); }
-
-        button {
-            width: 100%; padding: 16px; border: none; border-radius: 12px;
-            background: linear-gradient(135deg, var(--secondary), var(--primary));
-            color: white; font-size: 1.1em; font-weight: bold; cursor: pointer;
-            margin-top: 10px; transition: 0.3s;
+        .cards-row {
+            display: flex; gap: 12px; width: 100%;
         }
 
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        .results { margin-top: 35px; display: none; }
-
-        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-
-        .card {
-            background: rgba(15, 23, 42, 0.5); border-radius: 20px; padding: 25px;
-            border: 1px solid rgba(255,255,255,0.05); text-align: center;
+        .res-card {
+            flex: 1; background: white; border-radius: 12px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 15px 10px;
+            border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: 0.3s;
         }
 
-        .amount { font-size: 2em; font-weight: 800; margin: 10px 0; color: var(--primary); }
+        .res-card span.label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        .res-card span.value { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin: 5px 0; }
+        .res-card span.badge { font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: #e2e8f0; color: var(--text-muted); }
 
-        .winner { border: 2px solid #10b981; background: rgba(16, 185, 129, 0.1); }
-
-        .explanation {
-            margin-top: 30px; padding: 25px; background: rgba(0,0,0,0.2);
-            border-radius: 16px; border-left: 4px solid var(--secondary);
+        .text-explanation {
+            text-align: center; padding-top: 12px; border-top: 2px dashed #cbd5e1;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); line-height: 1.4;
+            display: flex; align-items: center; justify-content: center; min-height: 60px;
         }
 
-        #partnerSection { display: none; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px; }
+        /* --- CARTES INPUTS --- */
+        .exercise-card {
+            background: white; border-radius: 16px; padding: 20px;
+            border: 1px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; width: 100%;
+        }
+        .exercise-card.highlight { border-color: var(--accent); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .card-title { font-weight: 800; font-size: 1rem; color: var(--primary); }
+
+        .input-row { 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px; 
+        }
+        
+        /* C'est ici que la magie opère pour ne rien couper */
+        .row-label { 
+            width: 105px; /* Juste ce qu'il faut pour "Frais Réels" etc. */
+            font-size: 0.75rem; font-weight: 800; color: #64748b; 
+            text-transform: uppercase; letter-spacing: 0.5px;
+            flex-shrink: 0; text-align: left;
+        }
+        
+        .input-wrap { position: relative; flex: 1; }
+        .input-wrap input, .input-wrap select { 
+            width: 100%; padding: 10px 12px; padding-right: 35px; /* Espace pour le €/km */
+            border: 2px solid #e2e8f0; border-radius: 8px; 
+            font-family: inherit; font-weight: 800; color: var(--primary); font-size: 0.95rem; text-align: center;
+            background: #f8fafc; transition: 0.2s; outline: none; appearance: none;
+        }
+        .input-wrap input:focus, .input-wrap select:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .input-wrap span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #cbd5e1; font-weight: 800; pointer-events: none; }
+
+        .checkbox-container { 
+            display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--primary); 
+            margin: 10px 0; padding-left: 115px; /* Aligné pile avec les cases (105px + 10px) */
+        }
+        .checkbox-container input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+
+        .card-actions {
+            margin-top: auto; 
+            display: flex; gap: 10px; padding-top: 10px;
+        }
+
+        .btn-ik { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #eff6ff; color: var(--accent); font-weight: 800; font-size: 0.8rem; transition: 0.2s; cursor: pointer; }
+        .btn-ik:hover { background: #dbeafe; }
+        .btn-ik:active { transform: scale(0.97); }
+
+        /* --- BOUTON CALCUL --- */
+        .action-zone { margin-top: auto; padding: 20px; background: white; }
+        
+        .btn-save {
+            width: 100%; padding: 14px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 12px;
+            font-weight: 800; font-size: 1rem;
+            box-shadow: 0 8px 15px rgba(15, 23, 42, 0.15);
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-save:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);}
+        .btn-save:active { transform: scale(0.98); box-shadow: 0 4px 8px rgba(15, 23, 42, 0.15); }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Calculateur d'Impôts</h1>
-    
-    <div class="tabs">
-        <div class="tab active" id="tabSolo" onclick="switchMode('solo')">Célibataire (1 Part)</div>
-        <div class="tab" id="tabCouple" onclick="switchMode('couple')">PACS / Marié (2 Parts)</div>
-    </div>
-
-    <div class="grid">
-        <div class="input-box">
-            <label>Tes revenus nets (€)</label>
-            <input type="number" id="rev1" value="">
-        </div>
-        <div class="input-box">
-            <label>Tes frais réels (€)</label>
-            <input type="number" id="frais1" value="">
-        </div>
-    </div>
-
-    <div id="partnerSection">
-        <div class="grid">
-            <div class="input-box">
-                <label>Revenus Partenaire (€)</label>
-                <input type="number" id="rev2" value="0">
-            </div>
-            <div class="input-box">
-                <label>Frais réels Partenaire (€)</label>
-                <input type="number" id="frais2" value="0">
-            </div>
-        </div>
-    </div>
-
-    <div class="input-box">
-        <label>Total déjà prélevé à la source (€)</label>
-        <input type="number" id="source" value="">
-    </div>
-
-    <button onclick="calculer()">Comparer les options</button>
-
-    <div class="results" id="results">
-        <div class="comparison-grid" id="cards">
-            </div>
-        <div id="summary" class="explanation"></div>
-    </div>
-</div>
-
-<script>
-    let mode = 'solo';
-
-    function switchMode(m) {
-        mode = m;
-        document.getElementById('tabSolo').classList.toggle('active', m === 'solo');
-        document.getElementById('tabCouple').classList.toggle('active', m === 'couple');
-        document.getElementById('partnerSection').style.display = m === 'couple' ? 'block' : 'none';
-    }
-
-    function calculImpot(revenu, parts) {
-        let qf = revenu / parts;
-        let impotBase = 0;
+    <div class="app-container">
         
-        if (qf > 11600) impotBase += (Math.min(qf, 29579) - 11600) * 0.11;
-        if (qf > 29579) impotBase += (Math.min(qf, 85460) - 29579) * 0.30;
-        if (qf > 85460) impotBase += (Math.min(qf, 183604) - 85460) * 0.41;
-        if (qf > 183604) impotBase += (qf - 183604) * 0.45;
+        <div class="app-header">
+            <div class="brand"><i class="fa-solid fa-money-bills"></i> FUCK LE FISC</div>
+        </div>
 
-        let impotBrut = impotBase * parts;
+        <div class="app-body">
+            
+            <div class="left-panel">
+                <div class="selector-area">
+                    <div class="custom-select-wrapper">
+                        <select id="mode-select" class="custom-select" onchange="switchMode()">
+                            <option value="solo">👤 Célibataire (1 Part)</option>
+                            <option value="couple">👥 PACS / Marié (2 Parts)</option>
+                        </select>
+                        <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                </div>
 
-        // Décote 2026
-        let plafondDecote = parts === 1 ? 1982 : 3274;
-        let baseDecote = parts === 1 ? 897 : 1481;
-        
-        if (impotBrut > 0 && impotBrut < plafondDecote) {
-            let decote = baseDecote - (impotBrut * 0.4525);
-            if (decote > 0) impotBrut -= decote;
+                <div class="coach-zone">
+                    <div class="result-block">
+                        <div class="cards-row">
+                            <div id="card-10" class="res-card">
+                                <span class="label">Option 10%</span>
+                                <span id="val-10" class="value">- €</span>
+                                <span id="sub-10" class="badge">En attente</span>
+                            </div>
+                            <div id="card-reel" class="res-card">
+                                <span class="label">Frais Réels</span>
+                                <span id="val-reel" class="value">- €</span>
+                                <span id="sub-reel" class="badge">En attente</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-explanation" id="text-expl">
+                            <span>Lance un calcul pour voir quelle option est la plus rentable pour toi en un clin d'œil.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-zone">
+                    <button class="btn-save" onclick="calculer()">
+                        <i class="fa-solid fa-calculator"></i> Lancer le calcul
+                    </button>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="exercise-list">
+                    
+                    <div class="exercise-card highlight">
+                        <div class="card-header"><span class="card-title">📝 Mes Finances</span></div>
+                        <div class="input-row">
+                            <div class="row-label">Revenus Nets</div>
+                            <div class="input-wrap"><input type="number" id="rev1" value="22867.28"><span>€</span></div>
+                        </div>
+                        <div class="input-row">
+                            <div class="row-label">Frais Réels</div>
+                            <div class="input-wrap"><input type="number" id="frais1" value="0"><span>€</span></div>
+                        </div>
+                    </div>
+
+                    <div class="exercise-card" id="partnerCard" style="display:none;">
+                        <div class="card-header"><span class="card-title">👥 Partenaire</span></div>
+                        <div class="input-row">
+                            <div class="row-label">Revenus Nets</div>
+                            <div class="input-wrap"><input type="number" id="rev2" value="0"><span>€</span></div>
+                        </div>
+                        <div class="input-row">
+                            <div class="row-label">Frais Réels</div>
+                            <div class="input-wrap"><input type="number" id="frais2" value="0"><span>€</span></div>
+                        </div>
+                    </div>
+
+                    <div class="exercise-card">
+                        <div class="card-header"><span class="card-title">🚗 Simulateur Kilométrique</span></div>
+                        
+                        <div class="input-row">
+                            <div class="row-label">Distance Pro.</div>
+                            <div class="input-wrap"><input type="number" id="ikDistance" placeholder="Ex: 12000"><span>km</span></div>
+                        </div>
+                        <div class="input-row">
+                            <div class="row-label">Puissance</div>
+                            <div class="input-wrap">
+                                <select id="ikCV">
+                                    <option value="3">3 CV ou -</option>
+                                    <option value="4">4 CV</option>
+                                    <option value="5">5 CV</option>
+                                    <option value="6">6 CV</option>
+                                    <option value="7">7 CV et +</option>
+                                </select>
+                                <span><i class="fa-solid fa-chevron-down"></i></span>
+                            </div>
+                        </div>
+                        
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="ikElectric"> Véhicule électrique (+20%)
+                        </label>
+
+                        <div class="card-actions">
+                            <button class="btn-ik" onclick="calculerIK(1)">+ MES Frais</button>
+                            <button class="btn-ik" id="btnIkPartner" style="display:none;" onclick="calculerIK(2)">+ Frais Part.</button>
+                        </div>
+                        <div id="ikFeedback" style="display:none; text-align:center; margin-top:8px; font-size:0.8rem; font-weight:800; color:var(--success);"></div>
+                    </div>
+
+                    <div class="exercise-card">
+                        <div class="card-header"><span class="card-title">💰 À la source</span></div>
+                        <div class="input-row">
+                            <div class="row-label">Déjà payé</div>
+                            <div class="input-wrap"><input type="number" id="source" value="220.10"><span>€</span></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div> 
+    </div>
+
+    <script>
+        function switchMode() {
+            const mode = document.getElementById('mode-select').value;
+            const partnerCard = document.getElementById('partnerCard');
+            const btnIkPartner = document.getElementById('btnIkPartner');
+            
+            if(mode === 'couple') {
+                partnerCard.style.display = 'flex';
+                btnIkPartner.style.display = 'block';
+            } else {
+                partnerCard.style.display = 'none';
+                btnIkPartner.style.display = 'none';
+            }
         }
-        return Math.max(0, impotBrut);
-    }
 
-    function calculer() {
-        const r1 = parseFloat(document.getElementById('rev1').value) || 0;
-        const f1 = parseFloat(document.getElementById('frais1').value) || 0;
-        const r2 = parseFloat(document.getElementById('rev2').value) || 0;
-        const f2 = parseFloat(document.getElementById('frais2').value) || 0;
-        const sourceTotal = parseFloat(document.getElementById('source').value) || 0;
+        function calculerIK(targetPerson) {
+            const distance = parseFloat(document.getElementById('ikDistance').value) || 0;
+            const cv = parseInt(document.getElementById('ikCV').value) || 3;
+            const isElectric = document.getElementById('ikElectric').checked;
+            let montant = 0;
 
-        let parts = mode === 'solo' ? 1 : 2;
-        let revTotal = mode === 'solo' ? r1 : (r1 + r2);
-        
-        // Calcul Option Frais Réels
-        let totalFrais = mode === 'solo' ? f1 : (f1 + f2);
-        let impotFrais = calculImpot(revTotal - totalFrais, parts);
-        let resteFrais = impotFrais - sourceTotal;
+            if (distance === 0) {
+                afficherFeedback("Indique une distance en km !", "var(--danger)");
+                return;
+            }
 
-        // Calcul Option 10%
-        let abattement = Math.min(revTotal * 0.1, 14649); // Plafond indicatif
-        let impot10 = calculImpot(revTotal - abattement, parts);
-        let reste10 = impot10 - sourceTotal;
+            if (distance <= 5000) {
+                if (cv <= 3) montant = distance * 0.529;
+                else if (cv === 4) montant = distance * 0.606;
+                else if (cv === 5) montant = distance * 0.636;
+                else if (cv === 6) montant = distance * 0.665;
+                else montant = distance * 0.697;
+            } else if (distance <= 20000) {
+                if (cv <= 3) montant = (distance * 0.316) + 1065;
+                else if (cv === 4) montant = (distance * 0.340) + 1330;
+                else if (cv === 5) montant = (distance * 0.357) + 1391;
+                else if (cv === 6) montant = (distance * 0.374) + 1457;
+                else montant = (distance * 0.394) + 1515;
+            } else {
+                if (cv <= 3) montant = distance * 0.370;
+                else if (cv === 4) montant = distance * 0.407;
+                else if (cv === 5) montant = distance * 0.427;
+                else if (cv === 6) montant = distance * 0.447;
+                else montant = distance * 0.470;
+            }
 
-        const cards = document.getElementById('cards');
-        const summary = document.getElementById('summary');
+            if (isElectric) montant = montant * 1.20;
+            montant = Math.round(montant);
 
-        cards.innerHTML = `
-            <div class="card ${reste10 < resteFrais ? 'winner' : ''}">
-                <h3>Option 10%</h3>
-                <div class="amount">${Math.abs(reste10).toFixed(2)} €</div>
-                <small>${reste10 < 0 ? 'À vous rembourser' : 'À payer'}</small>
-            </div>
-            <div class="card ${resteFrais < reste10 ? 'winner' : ''}">
-                <h3>Option Frais Réels</h3>
-                <div class="amount">${Math.abs(resteFrais).toFixed(2)} €</div>
-                <small>${resteFrais < 0 ? 'À vous rembourser' : 'À payer'}</small>
-            </div>
-        `;
+            const fieldId = targetPerson === 1 ? 'frais1' : 'frais2';
+            const currentFrais = parseFloat(document.getElementById(fieldId).value) || 0;
+            document.getElementById(fieldId).value = currentFrais + montant;
 
-        let economie = Math.abs(reste10 - resteFrais).toFixed(2);
-        let textMode = mode === 'solo' ? "ta situation actuelle" : "votre foyer pacsé";
-        
-        summary.innerHTML = `
-            <h3>Analyse du résultat</h3>
-            <p>Pour ${textMode}, les <strong>frais réels</strong> vous font économiser <strong>${economie} €</strong> par rapport à l'abattement classique.</p>
-            <p><strong>Note sur le PACS :</strong> Si vous étiez déclarés séparément, vous paieriez la somme de deux impôts individuels. En déclaration commune (2 parts), le revenu total est divisé par deux avant d'appliquer le barème, ce qui réduit l'impôt si l'un de vous gagne plus que l'autre.</p>
-        `;
+            afficherFeedback(`✅ + ${montant} € ajoutés !`, "var(--success)");
+            document.getElementById('ikDistance').value = '';
+        }
 
-        document.getElementById('results').style.display = 'block';
-    }
-</script>
+        function afficherFeedback(message, color) {
+            const feedback = document.getElementById('ikFeedback');
+            feedback.innerText = message;
+            feedback.style.color = color;
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 2000);
+        }
+
+        function calculImpot(revenu, parts) {
+            let qf = revenu / parts;
+            let impotBase = 0;
+            
+            if (qf > 11600) impotBase += (Math.min(qf, 29579) - 11600) * 0.11;
+            if (qf > 29579) impotBase += (Math.min(qf, 85460) - 29579) * 0.30;
+            if (qf > 85460) impotBase += (Math.min(qf, 183604) - 85460) * 0.41;
+            if (qf > 183604) impotBase += (qf - 183604) * 0.45;
+
+            let impotBrut = impotBase * parts;
+
+            let plafondDecote = parts === 1 ? 1982 : 3274;
+            let baseDecote = parts === 1 ? 897 : 1481;
+            
+            if (impotBrut > 0 && impotBrut < plafondDecote) {
+                let decote = baseDecote - (impotBrut * 0.4525);
+                if (decote > 0) impotBrut -= decote;
+            }
+            return Math.max(0, impotBrut);
+        }
+
+        function calculer() {
+            const mode = document.getElementById('mode-select').value;
+            const r1 = parseFloat(document.getElementById('rev1').value) || 0;
+            const f1 = parseFloat(document.getElementById('frais1').value) || 0;
+            const r2 = parseFloat(document.getElementById('rev2').value) || 0;
+            const f2 = parseFloat(document.getElementById('frais2').value) || 0;
+            const sourceTotal = parseFloat(document.getElementById('source').value) || 0;
+
+            let parts = mode === 'solo' ? 1 : 2;
+            let revTotal = mode === 'solo' ? r1 : (r1 + r2);
+            
+            let totalFrais = mode === 'solo' ? f1 : (f1 + f2);
+            let impotFrais = calculImpot(revTotal - totalFrais, parts);
+            let resteFrais = impotFrais - sourceTotal;
+
+            let abattement = Math.min(revTotal * 0.1, 14649);
+            let impot10 = calculImpot(revTotal - abattement, parts);
+            let reste10 = impot10 - sourceTotal;
+
+            const formatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+
+            // MAJ Valeurs
+            document.getElementById('val-10').innerText = formatter.format(Math.abs(reste10));
+            document.getElementById('val-reel').innerText = formatter.format(Math.abs(resteFrais));
+
+            // MAJ Labels
+            const setLabel = (id, val) => {
+                const el = document.getElementById(id);
+                el.innerText = val < 0 ? 'À REMBOURSER' : 'À PAYER';
+                el.style.color = val < 0 ? 'var(--success)' : 'var(--text-muted)';
+                el.style.background = val < 0 ? '#d1fae5' : '#e2e8f0';
+            };
+            setLabel('sub-10', reste10);
+            setLabel('sub-reel', resteFrais);
+
+            // MAJ Winners
+            const card10 = document.getElementById('card-10');
+            const cardReel = document.getElementById('card-reel');
+            
+            if(reste10 <= resteFrais) {
+                card10.style.borderColor = 'var(--success)';
+                card10.style.background = '#ecfdf5';
+                cardReel.style.borderColor = 'transparent';
+                cardReel.style.background = 'white';
+            } else {
+                cardReel.style.borderColor = 'var(--success)';
+                cardReel.style.background = '#ecfdf5';
+                card10.style.borderColor = 'transparent';
+                card10.style.background = 'white';
+            }
+
+            // MAJ Explications
+            let economie = Math.abs(reste10 - resteFrais);
+            let textExp = "";
+            if (mode === 'solo') {
+                textExp = resteFrais < reste10 ? 
+                    `<span>Déclare tes <strong>frais réels</strong> ! Tu économises <strong style="color:var(--primary);">${formatter.format(economie)}</strong> par rapport à l'abattement classique.</span>` : 
+                    `<span>Garde l'<strong>abattement automatique de 10%</strong>. Tu gagnes <strong style="color:var(--primary);">${formatter.format(economie)}</strong> en ne faisant rien.</span>`;
+            } else {
+                textExp = resteFrais < reste10 ? 
+                    `<span>Déclarez vos <strong>frais réels</strong> ! Vous économisez <strong style="color:var(--primary);">${formatter.format(economie)}</strong> sur votre imposition commune.</span>` : 
+                    `<span>Gardez l'<strong>abattement automatique de 10%</strong>. Vous gagnez <strong style="color:var(--primary);">${formatter.format(economie)}</strong> en ne faisant rien.</span>`;
+            }
+            document.getElementById('text-expl').innerHTML = textExp;
+
+            // Animation Bouton
+            const btn = document.querySelector('.btn-save');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Calcul Terminé';
+            btn.style.background = 'var(--success)';
+            setTimeout(() => { 
+                btn.innerHTML = '<i class="fa-solid fa-calculator"></i> Lancer le calcul'; 
+                btn.style.background = ''; 
+            }, 1500);
+        }
+    </script>
 </body>
 </html>
